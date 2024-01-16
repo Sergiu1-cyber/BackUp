@@ -1,0 +1,11 @@
+/data/data/com.termux/files/usr/lib
+├── @angular/cli@17.0.5
+├── @astrojs/language-server@2.5.5
+├── acodex-server@1.0.7
+├── corepack@0.17.2
+├── firebase-tools@13.0.2
+├── npm@9.6.6
+├── serve@14.2.1
+├── typescript-language-server@4.2.0
+└── typescript@5.3.3
+

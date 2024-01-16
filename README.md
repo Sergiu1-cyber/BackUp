@@ -1,0 +1,6 @@
+
+# Termux settings
+
+
+
+

@@ -1,0 +1,476 @@
+#+STARTUP: overview num
+#+PROPERTY: header-args:emacs-lisp :tangle init.el
+
+
+* Utilizez
+** Comenzi pentru titlu
+overview content 
+
+** Generez manual
+pentru a genera manual utilizez
+ - CTRL-c si CTRL-v-t
+
+
+* Config emacs-from-scratch
+
+
+** Setari generale
+
+*** Info la inceput
+
+#+BEGIN_SRC emacs-lisp
+  ;;; package -- init -*- lexical-binding: t; -*-
+
+  ;;; Commentary:
+  ;;; fisier autoconfigurat din Emacs.org
+  ;;; nu il redactam aici
+
+  ;;; Code:
+
+#+END_SRC
+
+
+*** Initializez
+
+#+begin_src emacs-lisp
+;; initializez
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+(package-initialize)
+
+;; Initialize use-package
+
+(unless package-archive-contents
+  (package-refresh-contents))
+
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+
+;; (when (cl-find-if-not #'package-installed-p package-selected-packages)
+;;   (package-refresh-contents)
+;;   (mapc #'package-install package-selected-packages))
+
+;; (unless (package-installed-p 'use-package)
+;;   (package-install 'use-package))
+
+;; (require 'use-package)
+;; (setq use-package-always-ensure t)
+
+#+end_src
+
+
+*** Setez variable
+#+begin_src emacs-lisp
+  ;; setez variable generale
+  (global-display-line-numbers-mode 1)
+  (menu-bar-mode -1)
+  (tab-bar-mode 1)
+  (setq org-hide-emphasis-markers t)
+  ;; da-nu in y-n
+  (fset 'yes-or-no-p 'y-or-n-p)
+  ;; autocomplete in bufer
+  ;; (ido-mode)
+  (setq redisplay-dont-pause t)
+  (column-number-mode 1)
+#+end_src
+
+
+*** Set sintax highlighting
+
+
+*** Deconectez numerile in ORG si Shell
+#+begin_src emacs-lisp
+;; Disable line numbers for some modes
+(dolist (mode '(org-mode-hook
+                term-mode-hook
+                eshell-mode-hook
+	        shell-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+#+end_src
+
+
+*** Setez Interfata la general
+#+begin_src emacs-lisp
+  (custom-set-faces
+   '(font-lock-comment-face
+     ((t (:foreground "#8b6508"))))
+   '(mode-line
+     ((t (:background "#5c5cff" :foreground "#000000"))))
+   '(tab-bar
+     ((t (:background "#5c5cff" :foreground "#e5e5e5"))))
+   '(tab-bar-tab
+     ((t (:background "#00cdcd"))))
+   '(tab-bar-tab-inactive
+     ((t (:background "#5c5cff"))))
+   )
+#+end_src
+
+
+*** Includ modulul recentf
+
+Acest modul ajuta sa deschizi mai rapid fisierele
+ce au fost deschise ultima data
+
+Combinatia CTRL-g si CTRL-g va deschide o lista
+cu ultime fisiere lucrate
+
+#+begin_src emacs-lisp
+  ;; activez regimul recentf
+  (recentf-mode 1)
+  (global-set-key (kbd "C-x C-g") 'recentf-open-files)
+#+end_src
+
+
+** Setez modul ORG 
+*** Dechid adresa web in browser
+#+begin_src emacs-lisp
+;; deschide adresa in browser
+(setq browse-url-browser-function 'browse-url-xdg-open)
+#+end_src
+*** Setez snipet pentru #+SRC
+pentru a introduce proietatile de cod apas:
+'<el' si TAB
+
+#+begin_src emacs-lisp
+(require 'org-tempo)
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+#+end_src
+*** Generez automat init.el
+
+In fisier introduc limbajul si fisierul care trebuie generat
+sau in fiecare block - :tangle init.el
+la salvarea fisierului se va genera automat init.el
+
+PROPERTY: header-args:emacs-lisp :tangle init.el
+
+
+#+begin_src emacs-lisp :tangle no
+;; Automatically tangle our Emacs.org config file when we save it
+(defun efs/org-babel-tangle-config ()
+  (when (string-equal (buffer-file-name)
+                      (expand-file-name "~/.emacs.d/Emacs.org"))
+    ;; Dynamic scoping to the rescue
+    (let ((org-confirm-babel-evaluate nil))
+      (org-babel-tangle))))
+
+(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+
+#+end_src
+
+
+** Setez ivy si counsel 
+
+*** Explicarea
+
+- Ivy ofera completare automata mai ales in
+buferul de jos
+- Counsel extinde comenzile ivy si mai adauga
+- Swiper are functie de cautare rapida
+
+  Github:
+  [[https://github.com/abo-abo/swiper][abo-abo/swiper]]
+
+  Documentatie:
+  [[https://oremacs.com/swiper/][swiper]]
+  
+*** Setez Codul
+
+#+begin_src emacs-lisp
+  ;; Install counsel and ivy
+
+  (use-package counsel
+    :ensure t
+    :config
+    (counsel-mode 1))
+
+  (use-package ivy
+    :ensure t
+    :diminish
+    :bind (("C-s" . swiper-isearch)
+	   ("M-x" . counsel-M-x)
+	   ("C-x C-f" . counsel-find-file)
+	   ("C-x b" . ivy-switch-buffer)
+	   ("C-c C-r" . ivy-resume)
+	   :map ivy-minibuffer-map
+	   ("TAB" . ivy-alt-done)	
+	   :map ivy-switch-buffer-map
+	   ("TAB" . ivy-done))
+    :config
+    (ivy-mode 1)
+    (setq ivy-use-virtual-buffers t)
+    (setq ivy-count-format "(%d/%d) ")
+    (setq enable-recursive-minibuffers t)
+    (setq ivy-height 20))
+#+end_src
+
+
+** Treemacs
+*** Explicare
+treemacs reaza o bara de navigare rapida
+*** Instalare
+#+begin_src emacs-lisp
+(use-package treemacs
+  :ensure t
+  :defer t
+  :init
+  (with-eval-after-load 'winum
+    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :config
+  (progn
+    (setq treemacs-collapse-dirs                   (if treemacs-python-executable 3 0)
+          treemacs-deferred-git-apply-delay        0.5
+          treemacs-directory-name-transformer      #'identity
+          treemacs-display-in-side-window          t
+          treemacs-eldoc-display                   'simple
+          treemacs-file-event-delay                2000
+          treemacs-file-extension-regex            treemacs-last-period-regex-value
+          treemacs-file-follow-delay               0.2
+          treemacs-file-name-transformer           #'identity
+          treemacs-follow-after-init               t
+          treemacs-expand-after-init               t
+          treemacs-find-workspace-method           'find-for-file-or-pick-first
+          treemacs-git-command-pipe                ""
+          treemacs-goto-tag-strategy               'refetch-index
+          treemacs-header-scroll-indicators        '(nil . "^^^^^^")
+          treemacs-hide-dot-git-directory          t
+          treemacs-indentation                     2
+          treemacs-indentation-string              " "
+          treemacs-is-never-other-window           nil
+          treemacs-max-git-entries                 5000
+          treemacs-missing-project-action          'ask
+          treemacs-move-forward-on-expand          nil
+          treemacs-no-png-images                   nil
+          treemacs-no-delete-other-windows         t
+          treemacs-project-follow-cleanup          nil
+          treemacs-persist-file                    (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-position                        'left
+          treemacs-read-string-input               'from-child-frame
+          treemacs-recenter-distance               0.1
+          treemacs-recenter-after-file-follow      nil
+          treemacs-recenter-after-tag-follow       nil
+          treemacs-recenter-after-project-jump     'always
+          treemacs-recenter-after-project-expand   'on-distance
+          treemacs-litter-directories              '("/node_modules" "/.venv" "/.cask")
+          treemacs-project-follow-into-home        nil
+          treemacs-show-cursor                     nil
+          treemacs-show-hidden-files               t
+          treemacs-silent-filewatch                nil
+          treemacs-silent-refresh                  nil
+          treemacs-sorting                         'alphabetic-asc
+          treemacs-select-when-already-in-treemacs 'move-back
+          treemacs-space-between-root-nodes        t
+          treemacs-tag-follow-cleanup              t
+          treemacs-tag-follow-delay                1.5
+          treemacs-text-scale                      nil
+          treemacs-user-mode-line-format           nil
+          treemacs-user-header-line-format         nil
+          treemacs-wide-toggle-width               70
+          treemacs-width                           35
+          treemacs-width-increment                 1
+          treemacs-width-is-initially-locked       t
+          treemacs-workspace-switch-cleanup        nil)
+
+    ;; The default width and height of the icons is 22 pixels. If you are
+    ;; using a Hi-DPI display, uncomment this to double the icon size.
+    ;;(treemacs-resize-icons 44)
+
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-fringe-indicator-mode 'always)
+    (when treemacs-python-executable
+      (treemacs-git-commit-diff-mode t))
+
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null treemacs-python-executable)))
+      (`(t . t)
+       (treemacs-git-mode 'deferred))
+      (`(t . _)
+       (treemacs-git-mode 'simple)))
+
+    (treemacs-hide-gitignored-files-mode nil))
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t d"   . treemacs-select-directory)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
+
+
+(use-package treemacs-projectile
+  :after (treemacs projectile)
+  :ensure t)
+
+(use-package treemacs-magit
+  :after (treemacs magit)
+  :ensure t)
+
+(use-package treemacs-tab-bar ;;treemacs-tab-bar if you use tab-bar-mode
+  :after (treemacs)
+  :ensure t
+  :config (treemacs-set-scope-type 'Tabs))
+#+end_src
+
+** # ivy-rich (descrierea comenzilor ivy)
+
+*** Codul
+
+#+begin_src emacs-lisp :tangle no
+  ;; setez ivy-rich
+  (use-package ivy-rich
+    :ensure t
+    :init
+    (ivy-rich-mode 1)
+    :config
+    (setcdr
+     (assq t ivy-format-functions-alist) #'ivy-format-function-line))
+
+#+end_src
+
+
+** Setez helpful
+
+*** Explicarea
+Pachetul Helpful ofera documentatie mai comoda
+
+
+*** Setarile
+
+#+begin_src emacs-lisp
+;; Instlez helpful 
+
+(use-package helpful :ensure t)
+
+;; Note that the built-in `describe-function' includes both functions
+;; and macros. `helpful-function' is functions only, so we provide
+;; `helpful-callable' as a drop-in replacement.
+(global-set-key (kbd "C-h f") #'helpful-callable)
+
+(global-set-key (kbd "C-h v") #'helpful-variable)
+(global-set-key (kbd "C-h k") #'helpful-key)
+(global-set-key (kbd "C-h x") #'helpful-command)
+
+
+
+;; Lookup the current symbol at point. C-c C-d is a common keybinding
+;; for this in lisp modes.
+(global-set-key (kbd "C-c C-d") #'helpful-at-point)
+
+;; Look up *F*unctions (excludes macros).
+;;
+;; By default, C-h F is bound to `Info-goto-emacs-command-node'. Helpful
+;; already links to the manual, if a function is referenced there.
+(global-set-key (kbd "C-h F") #'helpful-function)
+
+
+(setq counsel-describe-function-function #'helpful-callable)
+(setq counsel-describe-variable-function #'helpful-variable)
+
+
+#+end_src
+
+
+
+** Setez LSP
+
+*** Info
+
+LSP ofera multe beneficii in lucru
+cu codul:
+
+- completare automata
+- cautare definirei functiei
+- formatarea codului
+
+  
+*** Codul
+
+#+begin_src emacs-lisp
+
+  ;;; activez lsp
+  (use-package lsp-mode
+    :ensure t
+    :init
+    (setq lsp-keymap-prefix "C-c l")
+    :hook
+    ((typescript-mode . lsp)
+     (js-mode . lsp)
+     (js2-mode . lsp)
+     (lsp-mode . lsp-enable-which-key-integration))
+    :commands lsp)
+
+
+  ;;; Activez verificarea flycheck
+  (use-package flycheck
+    :ensure t
+    :init (global-flycheck-mode))
+
+  ;;; folosesc ivy
+  (use-package lsp-ivy
+    :ensure t
+    :commands lsp-ivy-workspace-symbol)
+
+  (use-package lsp-treemacs
+    :ensure t
+    :commands lsp-treemacs-errors-list)
+
+
+  (use-package dap-mode
+    :ensure t
+    :config
+      (dap-mode 1)
+      (dap-auto-configure-mode 1))
+
+  (use-package lsp-ui
+    :ensure t
+    :custom (lsp-ui-doc-show-with-cursor t)
+    :commands lsp-ui-mode)
+
+  (use-package company
+    :ensure t
+    :init
+    (global-company-mode))
+
+  (use-package yasnippet
+    :ensure t
+    :config (yas-global-mode))
+
+  (use-package which-key
+      :ensure t
+      :config
+      (which-key-mode))
+
+  ;;; Setez culoarea pentru company
+    (custom-set-faces
+     '(company-tooltip
+       ((t (:background "#e62525"))))
+     '(company-tooltip-selection
+       ((t (:background "#2f993f"))))
+     '(lsp-ui-doc-background
+       ((t (:background "#c551c9"))))
+     )
+
+#+end_src
+
+
+
+*** Jsx highlighting
+#+begin_src emacs-lisp
+  (use-package rjsx-mode
+    :ensure t)
+#+end_src
+
+** Setari de finis
+
+*** Comentarii
+#+begin_src emacs-lisp
+
+  ;;; init.el ends here
+  
+#+end_src
+
+
+
+
