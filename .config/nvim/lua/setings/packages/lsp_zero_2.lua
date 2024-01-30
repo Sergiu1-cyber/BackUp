@@ -22,13 +22,15 @@ require('mason-lspconfig').setup({
   }
 })
 
+require'lspconfig'.rust_analyzer.setup({})
+
 ---
 -- Autocompletion config
 ---
 local cmp = require('cmp')
 local cmp_action = lsp_zero.cmp_action()
 
-cmp.setup({ 
+cmp.setup({
   sources = {
     {name = 'path'},
     {name = 'nvim_lsp'},
