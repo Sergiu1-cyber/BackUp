@@ -119,6 +119,8 @@ export PATH=~/.npm-global/bin:$PATH
 # Poetry path
 export PATH=$HOME/.local/bin:$PATH
 
+# Spring cli home
+export PATH=$HOME/.spring-3.2.2/bin:$PATH
 
 # Lua LS
 # export PATH=$HOME/programare/bin:$PATH
