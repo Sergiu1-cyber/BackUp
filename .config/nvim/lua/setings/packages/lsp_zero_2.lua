@@ -36,6 +36,12 @@ cmp.setup({
     {name = 'nvim_lsp'},
     {name = 'nvim_lua'},
   },
+
+  window = {
+      -- completion = cmp.config.window.bordered(),
+      -- documentation = cmp.config.window.bordered(),
+    },
+
   formatting = lsp_zero.cmp_format(),
   mapping = cmp.mapping.preset.insert({
     -- `Enter` key to confirm completion

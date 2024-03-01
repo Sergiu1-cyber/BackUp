@@ -22,3 +22,4 @@ vim.g.loaded_netrwPlugin = 1
 -- vim.opt.softtabstop = 4
 -- vim.opt.smartindent = true
 
+
