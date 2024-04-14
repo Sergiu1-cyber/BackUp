@@ -196,8 +196,8 @@ Plug 'wookayin/fzf-ripgrep.vim'
 " Blade PHP
 Plug 'jwalton512/vim-blade'
 
-
 call plug#end()
+
 
 " }}}
 
