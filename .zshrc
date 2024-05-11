@@ -116,6 +116,9 @@ source $ZSH/oh-my-zsh.sh
 # Set npm-global
 export PATH=~/.npm-global/bin:$PATH
 
+# Set compozer-global path 
+export PATH=~/.composer/vendor/bin:$PATH 
+
 # Poetry path
 export PATH=$HOME/.local/bin:$PATH
 
@@ -128,3 +131,4 @@ export PATH=$HOME/.spring-3.2.2/bin:$PATH
 
 # Load Angular CLI autocompletion.
 source <(ng completion script)
+

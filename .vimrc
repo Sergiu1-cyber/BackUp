@@ -196,6 +196,10 @@ Plug 'wookayin/fzf-ripgrep.vim'
 " Blade PHP
 Plug 'jwalton512/vim-blade'
 
+" Pug autocomplete & sintax highlights
+" Plug 'dNitro/vim-pug-complete', { 'for': ['jade', 'pug'] }
+Plug 'digitaltoad/vim-pug'
+
 call plug#end()
 
 
@@ -206,7 +210,10 @@ call plug#end()
 
 "------------------------ COC ------------------------
 " coc extensions
-let g:coc_global_extensions = [ 'coc-tslint-plugin', 'coc-tsserver', 'coc-emmet', 'coc-css', 'coc-html', 'coc-snippets', 'coc-json', 'coc-yank', 'coc-eslint', 'coc-pyright', 'coc-java', 'coc-go', 'coc-angular', 'coc-clangd', '@yaegassy/coc-tailwindcss3', '@yaegassy/coc-volar', 'coc-svelte', 'coc-sumneko-lua', 'coc-phpls', 'coc-blade', 'coc-htmldjango']
+let g:coc_global_extensions = [ 'coc-tslint-plugin', 'coc-tsserver', 'coc-emmet', 'coc-css', 'coc-html', 'coc-snippets', 'coc-json', 'coc-yank', 'coc-eslint', 'coc-pyright', 'coc-java', 'coc-go', 'coc-angular', 'coc-clangd', '@yaegassy/coc-tailwindcss3', '@yaegassy/coc-volar', 'coc-svelte', 'coc-sumneko-lua', 'coc-phpls', 'coc-blade', 'coc-htmldjango', '@yaegassy/coc-pug']
+
+" Activate pug autocomplete
+let g:coc_filetype_map = {'pug': 'jade'}
 
 " enter = select
 inoremap <expr> <cr> coc#pum#visible() ? coc#pum#confirm() : "\<CR>"
